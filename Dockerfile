@@ -1,8 +1,12 @@
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
-WORKDIR /app
-COPY . .
-RUN mvn clean install -DskipTests
+FROM jenkins/jenkins:lts
 
-FROM eclipse-temurin:17-jdk
-COPY --from=builder /app/target/*.hpi /plugin.hpi
-CMD ["ls", "-lh", "/plugin.hpi"]
+USER root
+
+# Optional: install curl if needed
+RUN apt-get update && apt-get install -y curl
+
+# Switch back to jenkins user
+USER jenkins
+
+# Install the unique-id plugin
+RUN jenkins-plugin-cli --plugins unique-id
